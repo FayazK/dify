@@ -4,6 +4,8 @@ services:
   api:
     image: langgenius/dify-api:0.6.7
     restart: always
+    env_file:
+      - ${PWD}/../.env
     environment:
       # Startup mode, 'api' starts the API server.
       MODE: api
@@ -144,7 +146,7 @@ services:
       NOTION_INTEGRATION_TYPE: internal
       NOTION_CLIENT_SECRET: you-client-secret
       NOTION_CLIENT_ID: you-client-id
-      NOTION_INTERNAL_SECRET: secret_JU4qPdAEQfw5Z2NshMeECwzgXwI3rLwu0FEhzAnLL4I
+      NOTION_INTERNAL_SECRET: ${NOTION_INTERNAL_SECRET}
       # The sandbox service endpoint.
       CODE_EXECUTION_ENDPOINT: "http://sandbox:8194"
       CODE_EXECUTION_API_KEY: dify-sandbox
@@ -255,7 +257,7 @@ services:
       NOTION_INTEGRATION_TYPE: internal
       NOTION_CLIENT_SECRET: you-client-secret
       NOTION_CLIENT_ID: you-client-id
-      NOTION_INTERNAL_SECRET: secret_JU4qPdAEQfw5Z2NshMeECwzgXwI3rLwu0FEhzAnLL4I
+      NOTION_INTERNAL_SECRET: ${NOTION_INTERNAL_SECRET}
     depends_on:
       - db
       - redis
@@ -349,8 +351,8 @@ services:
     image: langgenius/dify-sandbox:0.1.0
     restart: always
     cap_add:
-    # Why is sys_admin permission needed?
-    # https://docs.dify.ai/getting-started/install-self-hosted/install-faq#id-16.-why-is-sys_admin-permission-needed
+      # Why is sys_admin permission needed?
+      # https://docs.dify.ai/getting-started/install-self-hosted/install-faq#id-16.-why-is-sys_admin-permission-needed
       - SYS_ADMIN
     environment:
       # The DifySandbox configurations
