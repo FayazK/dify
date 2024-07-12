@@ -1,0 +1,235 @@
+version: "3"
+services:
+  # API service
+  api:
+    image: langgenius/dify-api:0.5.11-fix1
+    restart: always
+    environment:
+      # Startup mode, 'api' starts the API server.
+      MODE: api
+      # The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+      LOG_LEVEL: INFO
+      # A secret key that is used for securely signing the session cookie and encrypting sensitive information on the database. You can generate a strong key using `openssl rand -base64 42`.
+      SECRET_KEY: ${APP_KEY}
+      # The base URL of console application web frontend, refers to the Console base URL of WEB service if console domain is
+      # different from api or web app domain.
+      # example: http://cloud.dify.ai
+      CONSOLE_WEB_URL: ""
+      # Password for admin user initialization.
+      # If left unset, admin user will not be prompted for a password when creating the initial admin account.
+      INIT_PASSWORD: ${ADMIN_PASS}
+      # The base URL of console application api server, refers to the Console base URL of WEB service if console domain is
+      # different from api or web app domain.
+      # example: http://cloud.dify.ai
+      CONSOLE_API_URL: ""
+      # The URL prefix for Service API endpoints, refers to the base URL of the current API service if api domain is
+      # different from console domain.
+      # example: http://api.dify.ai
+      SERVICE_API_URL: ""
+      # The URL prefix for Web APP frontend, refers to the Web App base URL of WEB service if web app domain is different from
+      # console or api domain.
+      # example: http://udify.app
+      APP_WEB_URL: ""
+      # File preview or download Url prefix.
+      # used to display File preview or download Url to the front-end or as Multi-model inputs;
+      # Url is signed and has expiration time.
+      FILES_URL: ""
+      # When enabled, migrations will be executed prior to application startup and the application will start after the migrations have completed.
+      MIGRATION_ENABLED: ${MIGRATION_ENABLED}
+      # The configurations of postgres database connection.
+      # It is consistent with the configuration in the 'db' service below.
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_NAME}
+      # The configurations of redis connection.
+      # It is consistent with the configuration in the 'redis' service below.
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_USE_SSL: "false"
+      # use redis db 0 for redis cache
+      REDIS_DB: 0
+      # The configurations of celery broker.
+      # Use redis as the broker, and redis db 1 for celery broker.
+      CELERY_BROKER_URL: redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/1
+      # Specifies the allowed origins for cross-origin requests to the Web API, e.g. https://dify.app or * for all origins.
+      WEB_API_CORS_ALLOW_ORIGINS: "*"
+      # Specifies the allowed origins for cross-origin requests to the console API, e.g. https://cloud.dify.ai or * for all origins.
+      CONSOLE_CORS_ALLOW_ORIGINS: "*"
+      # CSRF Cookie settings
+      # Controls whether a cookie is sent with cross-site requests,
+      # providing some protection against cross-site request forgery attacks
+      #
+      # Default: `SameSite=Lax, Secure=false, HttpOnly=true`
+      # This default configuration supports same-origin requests using either HTTP or HTTPS,
+      # but does not support cross-origin requests. It is suitable for local debugging purposes.
+      #
+      # If you want to enable cross-origin support,
+      # you must use the HTTPS protocol and set the configuration to `SameSite=None, Secure=true, HttpOnly=true`.
+      #
+      # The type of storage to use for storing user files. Supported values are `local` and `s3` and `azure-blob`, Default: `local`
+      STORAGE_TYPE: s3
+      # The path to the local storage directory, the directory relative the root path of API service codes or absolute path. Default: `storage` or `/home/john/storage`.
+      # only available when STORAGE_TYPE is `local`.
+      STORAGE_LOCAL_PATH: storage
+      # The S3 storage configurations, only available when STORAGE_TYPE is `s3`.
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_REGION: ${S3_REGION}
+      # The Azure Blob storage configurations, only available when STORAGE_TYPE is `azure-blob`.
+      AZURE_BLOB_ACCOUNT_NAME: "difyai"
+      AZURE_BLOB_ACCOUNT_KEY: "difyai"
+      AZURE_BLOB_CONTAINER_NAME: "difyai-container"
+      AZURE_BLOB_ACCOUNT_URL: "https://<your_account_name>.blob.core.windows.net"
+      # The type of vector store to use. Supported values are `weaviate`, `qdrant`, `milvus`.
+      VECTOR_STORE: milvus
+      # The Weaviate endpoint URL. Only available when VECTOR_STORE is `weaviate`.
+      WEAVIATE_ENDPOINT: http://weaviate:8080
+      # The Weaviate API key.
+      WEAVIATE_API_KEY: WVF5YThaHlkYwhGUSmCRgsX3tD5ngdN8pkih
+      # The Qdrant endpoint URL. Only available when VECTOR_STORE is `qdrant`.
+      QDRANT_URL: http://qdrant:6333
+      # The Qdrant API key.
+      QDRANT_API_KEY: difyai123456
+      # The Qdrant clinet timeout setting.
+      QDRANT_CLIENT_TIMEOUT: 20
+      # Milvus configuration Only available when VECTOR_STORE is `milvus`.
+      # The milvus host.
+      MILVUS_HOST: 127.0.0.1
+      # The milvus host.
+      MILVUS_PORT: 19530
+      # The milvus username.
+      MILVUS_USER: root
+      # The milvus password.
+      MILVUS_PASSWORD: Milvus
+      # The milvus tls switch.
+      MILVUS_SECURE: "false"
+      # Mail configuration, support: resend, smtp
+      MAIL_TYPE: ""
+      # default send from email address, if not specified
+      MAIL_DEFAULT_SEND_FROM: "YOUR EMAIL FROM (eg: no-reply <no-reply@dify.ai>)"
+      SMTP_SERVER: ""
+      SMTP_PORT: 587
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
+      SMTP_USE_TLS: "true"
+      # the api-key for resend (https://resend.com)
+      RESEND_API_KEY: ""
+      RESEND_API_URL: https://api.resend.com
+      # The DSN for Sentry error reporting. If not set, Sentry error reporting will be disabled.
+      SENTRY_DSN: ""
+      # The sample rate for Sentry events. Default: `1.0`
+      SENTRY_TRACES_SAMPLE_RATE: 1.0
+      # The sample rate for Sentry profiles. Default: `1.0`
+      SENTRY_PROFILES_SAMPLE_RATE: 1.0
+    volumes:
+      # Mount the storage directory to the container, for storing user files.
+      - ./volumes/app/storage:/app/api/storage
+    # uncomment to expose dify-api port to host
+    ports:
+      - "5001:5001"
+
+  # worker service
+  # The Celery worker for processing the queue.
+  worker:
+    image: langgenius/dify-api:0.5.11-fix1
+    restart: always
+    environment:
+      # Startup mode, 'worker' starts the Celery worker for processing the queue.
+      MODE: worker
+
+      # --- All the configurations below are the same as those in the 'api' service. ---
+
+      # The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+      LOG_LEVEL: INFO
+      # A secret key that is used for securely signing the session cookie and encrypting sensitive information on the database. You can generate a strong key using `openssl rand -base64 42`.
+      # same as the API service
+      SECRET_KEY: ${APP_KEY}
+      # The configurations of postgres database connection.
+      # It is consistent with the configuration in the 'db' service below.
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_NAME}
+      # The configurations of redis cache connection.
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: 0
+      REDIS_USE_SSL: "false"
+      # The configurations of celery broker.
+      CELERY_BROKER_URL: redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/1
+      # The type of storage to use for storing user files. Supported values are `local` and `s3` and `azure-blob`, Default: `local`
+      STORAGE_TYPE: s3
+      STORAGE_LOCAL_PATH: storage
+      # The S3 storage configurations, only available when STORAGE_TYPE is `s3`.
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_REGION: ${S3_REGION}
+      # The Azure Blob storage configurations, only available when STORAGE_TYPE is `azure-blob`.
+      AZURE_BLOB_ACCOUNT_NAME: "difyai"
+      AZURE_BLOB_ACCOUNT_KEY: "difyai"
+      AZURE_BLOB_CONTAINER_NAME: "difyai-container"
+      AZURE_BLOB_ACCOUNT_URL: "https://<your_account_name>.blob.core.windows.net"
+      # The type of vector store to use. Supported values are `weaviate`, `qdrant`, `milvus`.
+      VECTOR_STORE: weaviate
+      # The Weaviate endpoint URL. Only available when VECTOR_STORE is `weaviate`.
+      WEAVIATE_ENDPOINT: http://weaviate:8080
+      # The Weaviate API key.
+      WEAVIATE_API_KEY: WVF5YThaHlkYwhGUSmCRgsX3tD5ngdN8pkih
+      # The Qdrant endpoint URL. Only available when VECTOR_STORE is `qdrant`.
+      QDRANT_URL: http://qdrant:6333
+      # The Qdrant API key.
+      QDRANT_API_KEY: difyai123456
+      # The Qdrant clinet timeout setting.
+      QDRANT_CLIENT_TIMEOUT: 20
+      # Milvus configuration Only available when VECTOR_STORE is `milvus`.
+      # The milvus host.
+      MILVUS_HOST: 127.0.0.1
+      # The milvus host.
+      MILVUS_PORT: 19530
+      # The milvus username.
+      MILVUS_USER: root
+      # The milvus password.
+      MILVUS_PASSWORD: Milvus
+      # The milvus tls switch.
+      MILVUS_SECURE: "false"
+      # Mail configuration, support: resend
+      MAIL_TYPE: ""
+      # default send from email address, if not specified
+      MAIL_DEFAULT_SEND_FROM: "YOUR EMAIL FROM (eg: no-reply <no-reply@dify.ai>)"
+      # the api-key for resend (https://resend.com)
+      RESEND_API_KEY: ""
+      RESEND_API_URL: https://api.resend.com
+    volumes:
+      # Mount the storage directory to the container, for storing user files.
+      - ./volumes/app/storage:/app/api/storage
+
+  # Frontend web application.
+  web:
+    image: langgenius/dify-web:0.5.11-fix1
+    restart: always
+    environment:
+      EDITION: SELF_HOSTED
+      # The base URL of console application api server, refers to the Console base URL of WEB service if console domain is
+      # different from api or web app domain.
+      # example: http://cloud.dify.ai
+      CONSOLE_API_URL: ""
+      # The URL for Web APP api server, refers to the Web App base URL of WEB service if web app domain is different from
+      # console or api domain.
+      # example: http://udify.app
+      APP_API_URL: ""
+      # The DSN for Sentry error reporting. If not set, Sentry error reporting will be disabled.
+      SENTRY_DSN: ""
+    # uncomment to expose dify-web port to host
+    ports:
+      - "5010:5010"
